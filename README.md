@@ -15,7 +15,7 @@ The LEDs flash differently depending on WiFi status:
 
 See [VintageNet documentation](https://hexdocs.pm/vintage_net/readme.html#internet-connectivity-checks) on configuring its Internet Connectivity checks.
 
-##  Optional configuration
+## Optional configuration
 
 By default the LED flashed is "led0", being the onboard LED available on a Pi Zero and the VintageNetWizard (v4) IP is `{192, 168, 0, 1}`. This can be changed by compile-time configuration eg
 
