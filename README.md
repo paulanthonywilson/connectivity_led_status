@@ -22,8 +22,9 @@ By default the LED flashed is "led0", being the onboard LED available on a Pi Ze
 ```elixir
 import Config
 
-config :connectivity_led_status, :led, "led1"
-config :connectivity_led_status, :vintage_net_wizard_hotspot, {10, 20, 0, 1}
+config :connectivity_led_status, Configuration,
+  led: "led1",
+  vintage_net_wizard_hotspot: {10, 20, 0, 1}
 
 ```
 
@@ -36,7 +37,7 @@ The package can be installed by adding `connectivity_led_status` to your list of
 ```elixir
 def deps do
   [
-    {:connectivity_led_status, "~> 0.1.0"}
+    {:connectivity_led_status, "~> 1.0"}
   ]
 end
 ```

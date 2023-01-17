@@ -20,28 +20,22 @@ defmodule ConnectivityLedStatus.SetsNetworkStatus do
   ```elixir
   import Config
 
-  config :connectivity_led_status, :vintage_net_wizard_hotspot, {10, 20, 0, 1}
+  config :connectivity_led_status, Configuration, vintage_net_wizard_hotspot: {10, 20, 0, 1}
 
   ```
 
 
   """
-  alias ConnectivityLedStatus.NetworkStatus
-  alias ConnectivityLedStatus.RealOnboardLed.NetworkStatusLed.OnboardLed
 
   use GenServer
   use ConnectivityLedStatus.OnboardLed
   use ConnectivityLedStatus.NetworkStatus
 
+  alias ConnectivityLedStatus.Configuration
+
   @name __MODULE__
 
   @check_every :timer.seconds(5)
-
-  @vintagenet_wizard_gateway_ip Application.compile_env(
-                                  :connectivity_led_status,
-                                  :vintage_net_wizard_hotspot,
-                                  {192, 168, 0, 1}
-                                )
 
   @spec start_link(any) :: :ignore | {:error, any} | {:ok, pid}
   def start_link(_) do
@@ -56,9 +50,11 @@ defmodule ConnectivityLedStatus.SetsNetworkStatus do
 
   @impl true
   def handle_info(:check_addresses, state) do
+    wizard_ip = Configuration.vintage_net_wizard_hotspot()
+
     case NetworkStatus.wlan0_address() do
       nil -> OnboardLed.flash_alarmingly()
-      @vintagenet_wizard_gateway_ip -> OnboardLed.flash_languidly()
+      ^wizard_ip -> OnboardLed.flash_languidly()
       _ -> check_connection_status()
     end
 

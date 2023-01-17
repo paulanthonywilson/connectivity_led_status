@@ -1,7 +1,7 @@
 defmodule ConnectivityLedStatus.SetsNetworkStatusTest do
   use ExUnit.Case, async: true
 
-  alias ConnectivityLedStatus.{SetsNetworkStatus, MockOnboardLed, MockNetworkStatus}
+  alias ConnectivityLedStatus.{MockNetworkStatus, MockOnboardLed, SetsNetworkStatus}
 
   import Mox
 
