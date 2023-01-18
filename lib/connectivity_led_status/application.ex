@@ -5,7 +5,7 @@ defmodule ConnectivityLedStatus.Application do
 
   @impl true
   def start(_type, _args) do
-    children = []
+    children = [ConnectivityLedStatus.SetsNetworkStatus]
 
     opts = [strategy: :one_for_one, name: ConnectivityLedStatus.Supervisor]
     Supervisor.start_link(children, opts)
