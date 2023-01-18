@@ -45,20 +45,21 @@ defmodule ConnectivityLedStatus.SetsNetworkStatus do
   @impl true
   def init(_) do
     send(self(), :schedule_next_check)
-    {:ok, []}
+    {:ok, %{connection_state: :unchecked}}
   end
 
   @impl true
   def handle_info(:check_addresses, state) do
+    send(self(), :schedule_next_check)
     wizard_ip = Configuration.vintage_net_wizard_hotspot()
 
-    case NetworkStatus.wlan0_address() do
-      nil -> OnboardLed.flash_alarmingly()
-      ^wizard_ip -> OnboardLed.flash_languidly()
-      _ -> check_connection_status()
-    end
+    state =
+      case NetworkStatus.wlan0_address() do
+        nil -> set_connection_state(:disconnected, state)
+        ^wizard_ip -> set_connection_state(:wizard, state)
+        _ -> check_connection_status(state)
+      end
 
-    send(self(), :schedule_next_check)
     {:noreply, state}
   end
 
@@ -67,11 +68,34 @@ defmodule ConnectivityLedStatus.SetsNetworkStatus do
     {:noreply, state}
   end
 
-  defp check_connection_status do
+  defp check_connection_status(state) do
     if NetworkStatus.connection_status() == :internet do
-      OnboardLed.turn_off()
+      set_connection_state(:connected, state)
     else
-      OnboardLed.flash_heartbeat()
+      set_connection_state(:lan_only, state)
     end
+  end
+
+  defp set_connection_state(connection_state, state) do
+    maybe_change_led(connection_state, state)
+    %{state | connection_state: connection_state}
+  end
+
+  defp maybe_change_led(connection_state, %{connection_state: connection_state}), do: :ok
+
+  defp maybe_change_led(:connected, _state) do
+    OnboardLed.turn_off()
+  end
+
+  defp maybe_change_led(:lan_only, _state) do
+    OnboardLed.flash_heartbeat()
+  end
+
+  defp maybe_change_led(:disconnected, _state) do
+    OnboardLed.flash_alarmingly()
+  end
+
+  defp maybe_change_led(:wizard, _state) do
+    OnboardLed.flash_languidly()
   end
 end
